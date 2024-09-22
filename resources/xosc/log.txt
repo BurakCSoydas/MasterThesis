@@ -1,0 +1,24 @@
+esmini GIT REV: N/A
+esmini GIT TAG: N/A
+esmini GIT BRANCH: N/A
+esmini BUILD VERSION: N/A - client build
+Generated seed 495892400
+Loading thesis2.xosc (v1.0)
+Loaded OpenDRIVE: ../xodr/thesis.xodr
+Catalog RouteCatalog sub element Directory not found - skipping
+Expr ${250/3.6} = 250/3.6 = 69.4444444444
+Missing esminiController property, using controller name: UDPDriverController
+Changing base port to 53995 (from 49950)
+In OSC 1.0 ActivateControllerAction should be placed under PrivateAction. Accepting anyway.
+0 parameters
+0.000: Starting teleport Action
+0.000: Ego New position:
+0.000: Pos(-0.00, -6.00, 0.00) Rot(0.00, 0.00, 0.00) roadId 1 laneId -2 offset 0.00 t -6.00
+0.000: Init Ego TeleportAction standbyState -> startTransition -> runningState
+0.000: ExternalDriverModel server listening on port 53995 execMode: Synchronous
+0.000: Controller UDPDriverController activated, domain mask=0x3
+0.000: Init Ego ControllerAction standbyState -> startTransition -> runningState
+0.000: Init Ego TeleportAction runningState -> endTransition -> completeState
+0.000: Gateway did not provide state for external car 0
+0.000: All acts are done, quit now
+Closing

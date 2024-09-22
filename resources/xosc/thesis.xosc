@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OpenSCENARIO>
+   <FileHeader revMajor="1"
+               revMinor="0"
+               date="2020-05-12T10:00:00"
+               description="dummy"
+               author="esmini"/>
+
+   <!-- Location of catalogs and ODR files -->
+   <RoadNetwork>
+      <LogicFile filepath= "../xodr/thesis.xodr"/> 
+   </RoadNetwork>
+  
+   <CatalogLocations>
+      <RouteCatalog/>
+      <VehicleCatalog>
+         <Directory path="../xosc/Catalogs/Vehicles"/>
+      </VehicleCatalog>
+      <ControllerCatalog>
+         <Directory path="../xosc/Catalogs/Controllers"/>
+      </ControllerCatalog>
+   </CatalogLocations>
+   <ParameterDeclarations>
+      <ParameterDeclaration name="relDistance" parameterType="double" value="60.0"/>
+   </ParameterDeclarations>
+   <!-- Declaration of Entities and Controllers if assigned to it   -->
+   <Entities>
+      <ScenarioObject name="Ego">
+         <CatalogReference catalogName="VehicleCatalog" 
+                           entryName="car_white"/>
+            <ObjectController>
+               <CatalogReference catalogName="ControllerCatalog" entryName="UDPDriverController">
+                  <ParameterAssignments>
+                     <!--<ParameterAssignment parameterRef="Port" value="0" />-->
+                     <ParameterAssignment parameterRef="BasePort" value="53995" />
+                     <ParameterAssignment parameterRef="ExecMode" value="synchronous" />
+                  </ParameterAssignments>
+               </CatalogReference>
+            </ObjectController>
+      </ScenarioObject>
+     
+      <ScenarioObject name="Target">
+         <CatalogReference catalogName="VehicleCatalog" entryName="car_red"/>
+      </ScenarioObject>
+   </Entities>
+
+   <!-- Start of ScenarioDefinition -->
+   <Storyboard>
+      <!-- Setting initial position & speed -->
+      <Init>
+         <Actions>
+            <Private entityRef="Ego">
+               <PrivateAction>
+                  <TeleportAction>
+                     <Position>
+                        <LanePosition roadId="1" laneId="-2" offset="0" s="0"/>
+                     </Position>
+                  </TeleportAction>
+               </PrivateAction>
+               <PrivateAction>
+                  <ControllerAction>
+                     <ActivateControllerAction longitudinal="true" lateral="true"/>
+                  </ControllerAction>
+               </PrivateAction>
+               <PrivateAction>
+                  <LongitudinalAction>
+                     <SpeedAction>
+                        <SpeedActionDynamics dynamicsShape="step" dynamicsDimension="time" value="0.0"/>
+                        <SpeedActionTarget>
+                           <AbsoluteTargetSpeed value="36"/>
+                        </SpeedActionTarget>
+                     </SpeedAction>
+                  </LongitudinalAction>
+               </PrivateAction>
+
+            </Private>
+            
+            <Private entityRef="Target">
+               <PrivateAction>
+                  <TeleportAction>
+                     <Position>
+                        <LanePosition roadId="1" laneId="-1" offset="0" s="100"/>
+                     </Position>
+                  </TeleportAction>
+               </PrivateAction>
+               <PrivateAction>
+                  <LongitudinalAction>
+                     <SpeedAction>
+                        <SpeedActionDynamics dynamicsShape="step" dynamicsDimension="time" value="0.0"/>
+                        <SpeedActionTarget>
+                           <AbsoluteTargetSpeed value="12"/>
+                        </SpeedActionTarget>
+                     </SpeedAction>
+                  </LongitudinalAction>
+               </PrivateAction>
+            </Private>
+
+         </Actions>
+      </Init>
+      <!-- "Wrapper" needed for Scenario -->
+      <Story>
+         <Act name="Act">
+            <!-- Answers the question who?  -->
+            <ManeuverGroup maximumExecutionCount="1" name="Cut-In">
+               <!-- For determining actors during runtime, not the case here -->
+               <Actors selectTriggeringEntities="false"> 
+                    <EntityRef entityRef="Target"/>
+               </Actors>
+               <!-- Answers the question what? Maneuver is used to group instances of Event -->
+               <Maneuver name="Maneuver">
+                  <Event priority="overwrite" maximumExecutionCount="1" name="Event">
+                     <Action name="Action">
+                        <PrivateAction>
+                           <LateralAction>
+                              <LaneChangeAction>
+                                 <LaneChangeActionDynamics dynamicsDimension="time" 
+                                                           dynamicsShape="linear"
+                                                           value="1.0" />
+                                 <LaneChangeTarget>
+                                    <AbsoluteTargetLane value="-2"/>
+                                 </LaneChangeTarget>
+                              </LaneChangeAction>
+                           </LateralAction>
+                        </PrivateAction>
+                     </Action>
+                  </Event>
+                </Maneuver>
+             </ManeuverGroup>
+             <StartTrigger>
+               <ConditionGroup>
+                <Condition delay="0.0" conditionEdge="rising" name="Relative Distance">
+                   <ByEntityCondition>
+                     <TriggeringEntities triggeringEntitiesRule="any">
+                       <EntityRef entityRef="Target"/>
+                     </TriggeringEntities>
+                     <EntityCondition>
+                       <RelativeDistanceCondition freespace="false" rule="lessThan" entityRef="Ego" value="$relDistance" relativeDistanceType="longitudinal"/>
+                     </EntityCondition>
+                   </ByEntityCondition>
+                 </Condition>
+               </ConditionGroup>
+            </StartTrigger>
+         </Act>
+     </Story>
+            <StopTrigger>
+                <ConditionGroup>
+                   <Condition name="ActStopCondition" delay="2" conditionEdge="rising">
+                      <ByValueCondition>
+                         <StoryboardElementStateCondition storyboardElementType="act"
+                                                          storyboardElementRef="Act"
+                                                          state="endTransition"/>
+                      </ByValueCondition>
+                   </Condition>
+                </ConditionGroup>
+            </StopTrigger>
+   </Storyboard>
+</OpenSCENARIO>
